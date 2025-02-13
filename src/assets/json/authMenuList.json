@@ -1025,6 +1025,66 @@
         "isAffix": false,
         "isKeepAlive": true
       }
+    },
+    {
+      "path": "/app-management",
+      "name": "app-management",
+      "component": "/app-management/index",
+      "meta": {
+        "icon": null,
+        "title": "应用管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      },
+      "children": []
+    },
+    {
+      "path": "/property-management",
+      "name": "property-management",
+      "component": "/property-management/index",
+      "meta": {
+        "icon": null,
+        "title": "属性管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      },
+      "children": []
+    },
+    {
+      "path": "/strategy-management",
+      "name": "strategy-management",
+      "component": "/strategy-management/index",
+      "meta": {
+        "icon": null,
+        "title": "策略管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      },
+      "children": []
+    },
+    {
+      "path": "/gateway-management",
+      "name": "gateway-management",
+      "component": "/gateway-management/index",
+      "meta": {
+        "icon": null,
+        "title": "网关管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      },
+      "children": []
     }
   ],
   "msg": "成功"

@@ -6,7 +6,7 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
-import eslintPlugin from "vite-plugin-eslint";
+// import eslintPlugin from "vite-plugin-eslint";
 import viteCompression from "vite-plugin-compression";
 import vueSetupExtend from "unplugin-vue-setup-extend-plus/vite";
 import NextDevTools from "vite-plugin-vue-devtools";
@@ -25,7 +25,7 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     // devTools
     VITE_DEVTOOLS && NextDevTools({ launchEditor: "code" }),
     // esLint 报错信息显示在浏览器界面上
-    eslintPlugin(),
+    // eslintPlugin(),
     // name 可以写在 script 标签上
     vueSetupExtend({}),
     // 创建打包压缩配置
@@ -45,7 +45,7 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     // vitePWA
     VITE_PWA && createVitePwa(viteEnv),
     // 是否生成包预览，分析依赖包大小做优化处理
-    VITE_REPORT && (visualizer({ filename: "stats.html", gzipSize: true, brotliSize: true }) as PluginOption),
+    VITE_REPORT && (visualizer({ filename: "stats.html", gzipSize: true, brotliSize: true }) as unknown as PluginOption),
     // 自动 IDE 并将光标定位到 DOM 对应的源代码位置。see: https://inspector.fe-dev.cn/guide/start.html
     VITE_CODEINSPECTOR &&
       codeInspectorPlugin({
