@@ -1057,11 +1057,11 @@
       "children": []
     },
     {
-      "path": "/strategy-management",
-      "name": "strategy-management",
-      "component": "/strategy-management/index",
+      "path": "/strategyManagement",
+      "name": "strategyManagement",
+      "component": "/strategyManagement/index",
       "meta": {
-        "icon": null,
+        "icon": "Menu",
         "title": "策略管理",
         "isLink": "",
         "isHide": false,
