@@ -30,6 +30,62 @@
       }
     },
     {
+      "path": "/table/appTable",
+      "name": "appTable",
+      "component": "/table/appTable/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "应用管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/table/attributeTable",
+      "name": "attributeTable",
+      "component": "/table/attributeTable/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "属性管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/table/tacticsTable",
+      "name": "tacticsTable",
+      "component": "/table/tacticsTable/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "策略管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
+      "path": "/table/gatewayTable",
+      "name": "gatewayTable",
+      "component": "/table/gatewayTable/index",
+      "meta": {
+        "icon": "Menu",
+        "title": "网关管理",
+        "isLink": "",
+        "isHide": false,
+        "isFull": false,
+        "isAffix": false,
+        "isKeepAlive": true
+      }
+    },
+    {
       "path": "/proTable",
       "name": "proTable",
       "redirect": "/proTable/useProTable",

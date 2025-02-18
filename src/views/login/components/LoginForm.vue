@@ -18,6 +18,18 @@
         </template>
       </el-input>
     </el-form-item>
+    <el-form-item prop="code">
+      <el-row>
+        <el-col :span="16">
+          <el-input v-model="loginForm.code" placeholder="验证码" autocomplete="off" size="" />
+        </el-col>
+        <el-col :span="8">
+          <div class="login-code" @click="refreshCode">
+            <s-identify :identify-code="identifyCode"></s-identify>
+          </div>
+        </el-col>
+      </el-row>
+    </el-form-item>
   </el-form>
   <div class="login-btn">
     <el-button :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)"> 重置 </el-button>
@@ -33,7 +45,7 @@ import { useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 // import { getTimeState } from "@/utils";
 import { Login } from "@/api/interface";
-import { ElNotification } from "element-plus";
+import { ElMessage } from "element-plus";
 import { loginApi } from "@/api/modules/login";
 import { useUserStore } from "@/stores/modules/user";
 import { useTabsStore } from "@/stores/modules/tabs";
@@ -42,6 +54,7 @@ import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 import md5 from "md5";
+import SIdentify from "@/views/login/components/SIdentify.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -52,14 +65,18 @@ type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const loginRules = reactive({
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
 });
 
 const loading = ref(false);
 const loginForm = reactive<Login.ReqLoginForm>({
   username: "",
-  password: ""
+  password: "",
+  code: ""
 });
+const identifyCodes = "1234abc";
+const identifyCode = ref("");
 
 // login
 const login = (formEl: FormInstance | undefined) => {
@@ -67,6 +84,13 @@ const login = (formEl: FormInstance | undefined) => {
   formEl.validate(async valid => {
     if (!valid) return;
     loading.value = true;
+    if (loginForm.code.toLowerCase() !== identifyCode.value.toLowerCase()) {
+      ElMessage.error("验证码错误");
+      refreshCode();
+      loginForm.code = "";
+      loading.value = false;
+      return;
+    }
     try {
       // 1.执行登录接口
       const { data } = await loginApi({ ...loginForm, password: md5(loginForm.password) });
@@ -87,13 +111,6 @@ const login = (formEl: FormInstance | undefined) => {
       //   type: "success",
       //   duration: 3000
       // });
-      ElNotification({
-        title: "React 付费版本 🔥🔥🔥",
-        dangerouslyUseHTMLString: true,
-        message: "预览地址：<a href='https://pro.spicyboy.cn'>https://pro.spicyboy.cn</a>",
-        type: "success",
-        duration: 8000
-      });
     } finally {
       loading.value = false;
     }
@@ -105,8 +122,20 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
 };
+// 验证码
+const makecode = (codes, length) => {
+  identifyCode.value = "";
+  for (let i = 0; i < length; i++) {
+    identifyCode.value += codes[Math.floor(Math.random() * codes.length)];
+  }
+};
+//刷新验证码
+const refreshCode = () => {
+  makecode(identifyCodes, 4);
+};
 
 onMounted(() => {
+  refreshCode();
   // 监听 enter 事件（调用登录）
   document.onkeydown = (e: KeyboardEvent) => {
     if (e.code === "Enter" || e.code === "enter" || e.code === "NumpadEnter") {
@@ -122,5 +151,5 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-@import "../index.scss";
+@import "../index";
 </style>

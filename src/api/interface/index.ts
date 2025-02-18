@@ -35,6 +35,7 @@ export namespace Login {
   export interface ReqLoginForm {
     username: string;
     password: string;
+    code: string;
   }
   export interface ResLogin {
     access_token: string;
@@ -86,5 +87,19 @@ export namespace User {
     id: string;
     name: string;
     children?: ResDepartment[];
+  }
+}
+//应用注册
+export namespace App {
+  export interface ReqApplication {
+    applicationName: string;
+    businessDomain: string;
+    businessUnit: string;
+    manager: string;
+  }
+  export interface ReqAttribute {
+    userName: string;
+    userAttribute?: string;
+    userOccupation: string;
   }
 }
