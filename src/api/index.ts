@@ -22,9 +22,22 @@ const config = {
   // 跨域时候允许携带凭证
   withCredentials: true
 };
-
+console.log("baseURL", config.baseURL);
 const axiosCanceler = new AxiosCanceler();
+axios.interceptors.request.use(
+  config => {
+    const userStore = useUserStore();
+    const token = userStore.token; // 从 Pinia 或 localStorage 获取 token
 
+    if (token && config.headers) {
+      config.headers["x-access-token"] = token; // 将 token 添加到请求头
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 class RequestHttp {
   service: AxiosInstance;
   public constructor(config: AxiosRequestConfig) {

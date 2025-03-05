@@ -70,11 +70,28 @@ export const getUserDepartment = () => {
 export const getUserRole = () => {
   return http.get<User.ResRole[]>(PORT1 + `/user/role`);
 };
-
-//应用注册
-export const getApplicationRegister = (params: App.ReqApplication) => {
+//应用信息
+export const getAppInfoOnly = (params: App.ReqApplicationInfo) => {
   return axios
-    .post(`/application/register`, params)
+    .post<App.ResApplicationInfoList>(`api/application/getAppInfo`, params)
+    .then(response => {
+      const newRes = {
+        data: {
+          list: response.data.appInfo,
+          total: response.data.appInfo.length
+        },
+        success: true
+      };
+      return newRes;
+    })
+    .catch(error => {
+      throw error;
+    });
+};
+//应用注册
+export const getApplicationRegister = (params: App.ReqApplicationRegister) => {
+  return axios
+    .post<App.ResApplicationInfo>(`/api/application/register`, params)
     .then(response => {
       return response.data;
     })
@@ -85,8 +102,13 @@ export const getApplicationRegister = (params: App.ReqApplication) => {
 //应用令牌
 export const getApplicationToken = async applicationName => {
   try {
-    const res = await axios.post(`/api/application/getToken`, applicationName);
-    return res.data;
+    const params = { applicationName: applicationName };
+    const res = await axios.post<App.ResAppToken>(`/api/application/getToken`, params);
+    const newRes = {
+      appId: res.data.appId,
+      appKey: res.data.appKey
+    };
+    return newRes;
   } catch (e) {
     console.log(e);
   }
@@ -94,10 +116,11 @@ export const getApplicationToken = async applicationName => {
 ///令牌更新
 export const getTokenUpdate = async applicationName => {
   try {
-    const res = await axios.post(
+    const params = { applicationName: applicationName };
+    const res = await axios.post<App.ResApplicationInfo>(
       `/api/application/tokenUpdate
 `,
-      applicationName
+      params
     );
     return res.data;
   } catch (e) {
@@ -105,24 +128,41 @@ export const getTokenUpdate = async applicationName => {
   }
 };
 //应用更新
-export const getApplicationUpdate = (params: { applicationName: string }) => {
-  return http.post(`/application/updateInfo`, params);
+export const getApplicationUpdate = async (params: App.ReqApplicationUpdate) => {
+  try {
+    const res = await axios.post<App.ResApplicationInfo>(
+      `/api/application/update
+`,
+      params
+    );
+    return res.data;
+  } catch (e) {
+    console.log(e);
+  }
 };
 //应用删除
 export const getApplicationDelete = (params: { applicationName: string }) => {
-  return http.post(`/application/delete`, params);
+  return http.post(`/api/application/delete`, params);
 };
 
-interface AttributeResponse {
-  status: number;
-  statusContent: string;
-}
 // 属性列表
-export const getAttributeList = (params = {}) => {
+export const getAttributeList = (params: App.ReqApplicationInfo) => {
   return axios
-    .post<AttributeResponse>(`/api/attribute/list`, params)
+    .post<App.ResAttribute>(
+      `/api/attribute/getAttributeInfo
+`,
+      params
+    )
     .then(res => {
-      return res;
+      const newRes = {
+        data: {
+          list: res.data.attributeInfo,
+          total: res.data.attributeInfo.length
+        },
+        success: true
+      };
+      console.log("newRes", newRes);
+      return newRes;
     })
     .catch(error => {
       console.log(error);
@@ -131,9 +171,9 @@ export const getAttributeList = (params = {}) => {
 // 属性注册
 export const getAttributeRegister = (params: App.ReqAttribute) => {
   return axios
-    .post<AttributeResponse>(`/api/attribute/register`, params)
+    .post<App.ReqAttribute>(`/api/attribute/register`, params)
     .then(res => {
-      return res;
+      return res.data;
     })
     .catch(error => {
       console.log(error);
@@ -142,9 +182,9 @@ export const getAttributeRegister = (params: App.ReqAttribute) => {
 // 属性更新
 export const getAttributeUpdate = (params: App.ReqAttribute) => {
   return axios
-    .post<AttributeResponse>(`/api/attribute/update`, params)
+    .post<App.ReqAttribute>(`/api/attribute/update`, params)
     .then(res => {
-      return res;
+      return res.data;
     })
     .catch(error => {
       console.log(error);
@@ -153,9 +193,9 @@ export const getAttributeUpdate = (params: App.ReqAttribute) => {
 // 属性删除
 export const getAttributeDelete = (params: App.ReqAttribute) => {
   return axios
-    .post<AttributeResponse>(`/api/attribute/delete`, params)
+    .post<App.ReqAttribute>(`/api/attribute/delete`, params)
     .then(res => {
-      return res;
+      return res.data;
     })
     .catch(error => {
       console.log(error);

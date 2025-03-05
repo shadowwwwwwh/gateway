@@ -56,7 +56,7 @@ const registerProps = ref<RegisterProps>({
 });
 const rules = reactive({
   applicationName: [{ required: true, message: "请填写应用名" }],
-  bussinessDomain: [{ required: true, message: "请填写业务域3" }],
+  businessDomain: [{ required: true, message: "请填写业务域3" }],
   businessUnit: [{ required: true, message: "请填写业务部门" }],
   manager: [{ required: true, message: "请填写责任人" }]
 });

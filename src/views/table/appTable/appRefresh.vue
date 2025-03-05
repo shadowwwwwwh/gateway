@@ -35,7 +35,7 @@ import { App } from "@/api/interface";
 
 interface DrawerProps {
   isView: boolean;
-  row: Partial<App.ReqApplication>;
+  row: Partial<App.ReqApplicationUpdate>;
   api?: (params: any) => Promise<any>;
   getTableList?: () => void;
 }
@@ -45,13 +45,35 @@ const drawerProps = ref<DrawerProps>({
   isView: false,
   row: {}
 });
-
+interface Params {
+  isView: boolean;
+  row: Partial<App.ReqApplication>;
+  api?: (params: any) => Promise<any>;
+  getTableList?: () => void;
+}
 // 接收父组件传过来的参数
-const acceptParams = (params: DrawerProps) => {
-  drawerProps.value = params;
-  drawerVisible.value = true;
-};
+const acceptParams = (params: Params) => {
+  console.log("📢 接收到的参数 params:", params);
 
+  // 进行字段转换
+  const transformedRow: App.ReqApplicationUpdate = {
+    applicationName_old: params.row.ApplicationName || "", // 旧值
+    applicationName: "", // 用户新输入的
+    businessDomain: "",
+    businessUnit: "",
+    manager: ""
+  };
+
+  // 赋值转换后的数据
+  drawerProps.value = {
+    ...params,
+    row: transformedRow
+  };
+
+  drawerVisible.value = true;
+
+  console.log("📢 更新后的 drawerProps.value:", drawerProps.value);
+};
 // 提交数据（新增/编辑）
 const ruleFormRef = ref<FormInstance>();
 const handleSubmit = () => {

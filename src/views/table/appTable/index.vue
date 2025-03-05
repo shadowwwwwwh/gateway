@@ -1,6 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" :columns="columns" :request-api="getUserList" :init-param="initParam" :data-callback="dataCallback">
+    <ProTable ref="proTable" :columns="columns" :request-api="getAppInfoOnly" :data-callback="dataCallback">
       <!-- 表格 header 按钮 -->
       <template #tableHeader>
         <el-button type="primary" :icon="CirclePlus" @click="appRegister()">应用注册</el-button>
@@ -31,17 +31,18 @@ import AppRegister from "@/views/table/appTable/appRegister.vue";
 import TokenRefresh from "@/views/table/appTable/tokenRefresh.vue";
 import { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import { CirclePlus, Delete, EditPen, View } from "@element-plus/icons-vue";
-import { getUserList, deleteUser, getTokenUpdate, getApplicationRegister } from "@/api/modules/user";
+import { getApplicationRegister, getAppInfoOnly, getApplicationUpdate, getApplicationDelete } from "@/api/modules/user";
 
 // ProTable 实例
 const proTable = ref<ProTableInstance>();
 
 // 如果表格需要初始化请求参数，直接定义传给 ProTable (之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
-const initParam = reactive({ type: 1 });
+//const initParam = reactive({ type: 1 });
 
 // dataCallback 是对于返回的表格数据做处理，如果你后台返回的数据不是 list && total 这些字段，可以在这里进行处理成这些字段
 // 或者直接去 hooks/useTable.ts 文件中把字段改为你后端对应的就行
 const dataCallback = (data: any) => {
+  console.log("data", data);
   return {
     list: data.list,
     total: data.total
@@ -55,20 +56,20 @@ const columns = reactive<ColumnProps<App.ReqApplication>[]>([
     label: "序号"
   },
   {
-    prop: "applicationName",
+    prop: "ApplicationName",
     label: "应用名",
     search: { el: "input" }
   },
   {
-    prop: "businessDomain",
+    prop: "Domain",
     label: "业务域"
   },
   {
-    prop: "businessUnit",
+    prop: "Department",
     label: "业务部门"
   },
   {
-    prop: "manager",
+    prop: "Responsible",
     label: "责任人"
   },
   { prop: "operation", label: "操作", fixed: "right", width: 330 }
@@ -76,9 +77,14 @@ const columns = reactive<ColumnProps<App.ReqApplication>[]>([
 
 // 删除用户信息
 const deleteAccount = async (params: App.ReqApplication) => {
-  await useHandleData(deleteUser, { applicationName: [params.applicationName] }, `删除【${params.applicationName}】用户`);
+  await useHandleData(
+    getApplicationDelete,
+    { applicationName: [params.ApplicationName] },
+    `删除【${params.ApplicationName}】用户`
+  );
   proTable.value?.getTableList();
 };
+//令牌检查
 const checkTokenRef = ref<InstanceType<typeof TokenRefresh> | null>(null);
 const checkToken = (row: Partial<App.ReqApplication> = {}) => {
   const params = {
@@ -88,16 +94,19 @@ const checkToken = (row: Partial<App.ReqApplication> = {}) => {
   };
   checkTokenRef.value?.acceptParams(params);
 };
+//应用更新
 const appRefreshRef = ref<InstanceType<typeof AppRefresh> | null>(null);
 const appRefresh = (row: Partial<App.ReqApplication> = {}) => {
+  console.log("row", row);
   const params = {
     isView: false,
     row: { ...row },
-    api: getTokenUpdate,
+    api: getApplicationUpdate,
     getTableList: proTable.value?.getTableList
   };
   appRefreshRef.value?.acceptParams(params);
 };
+//应用注册
 const appRegisterRef = ref<InstanceType<typeof AppRegister> | null>(null);
 const appRegister = () => {
   const params = {

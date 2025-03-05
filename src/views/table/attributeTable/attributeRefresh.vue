@@ -42,10 +42,26 @@ const drawerProps = ref<DrawerProps>({
   isView: false,
   row: {}
 });
-
+interface Params {
+  isView: boolean;
+  row: Partial<App.ResAttributeInfo>;
+  api?: (params: any) => Promise<any>;
+  getTableList?: () => void;
+}
 // 接收父组件传过来的参数
-const acceptParams = (params: DrawerProps) => {
-  drawerProps.value = params;
+const acceptParams = (params: Params) => {
+  console.log("refresh", params);
+
+  // 赋值转换后的数据
+  const transformedRow = {
+    userName: params.row.Name,
+    userAttribute: params.row.Attribute,
+    userOccupation: params.row.Occupation
+  };
+  drawerProps.value = {
+    ...params,
+    row: transformedRow
+  };
   drawerVisible.value = true;
 };
 

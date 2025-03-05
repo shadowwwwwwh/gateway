@@ -1,6 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" :columns="columns" :request-api="getUserList" :init-param="initParam" :data-callback="dataCallback">
+    <ProTable ref="proTable" :columns="columns" :request-api="getAttributeList" :data-callback="dataCallback">
       <!-- 表格 header 按钮 -->
       <template #tableHeader>
         <el-button type="primary" :icon="CirclePlus" @click="attributeRegister()">属性注册</el-button>
@@ -28,13 +28,13 @@ import AttributeRefresh from "@/views/table/attributeTable/attributeRefresh.vue"
 import AttributeRegister from "@/views/table/attributeTable/attributeRegister.vue";
 import { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import { getUserList, getAttributeDelete, getAttributeRegister, getAttributeUpdate } from "@/api/modules/user";
+import { getAttributeList, getAttributeDelete, getAttributeRegister, getAttributeUpdate } from "@/api/modules/user";
 
 // ProTable 实例
 const proTable = ref<ProTableInstance>();
 
 // 如果表格需要初始化请求参数，直接定义传给 ProTable (之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
-const initParam = reactive({ type: 1 });
+//const initParam = reactive({ type: 1 });
 
 // dataCallback 是对于返回的表格数据做处理，如果你后台返回的数据不是 list && total 这些字段，可以在这里进行处理成这些字段
 // 或者直接去 hooks/useTable.ts 文件中把字段改为你后端对应的就行
@@ -46,35 +46,35 @@ const dataCallback = (data: any) => {
 };
 
 // 表格配置项
-const columns = reactive<ColumnProps<App.ReqAttribute>[]>([
+const columns = reactive<ColumnProps<App.ResAttributeInfo>[]>([
   {
     prop: "sort",
     label: "序号"
   },
   {
-    prop: "userName",
+    prop: "Name",
     label: "用户名",
     search: { el: "input" }
   },
   {
-    prop: "userAttribute",
+    prop: "Attribute",
     label: "用户属性"
   },
   {
-    prop: "userOccupation",
+    prop: "Occupation",
     label: "用户归口"
   },
   { prop: "operation", label: "操作", fixed: "right", width: 330 }
 ]);
 
 // 删除用户信息
-const deleteAccount = async (params: App.ReqAttribute) => {
-  await useHandleData(getAttributeDelete, { applicationName: [params.userName] }, `删除【${params.userName}】用户`);
+const deleteAccount = async (params: App.ResAttributeInfo) => {
+  await useHandleData(getAttributeDelete, { applicationName: [params.Name] }, `删除【${params.Name}】用户`);
   proTable.value?.getTableList();
 };
 //属性更新
 const attributeRefreshRef = ref<InstanceType<typeof AttributeRefresh> | null>(null);
-const attributeRefresh = (row: Partial<App.ReqAttribute> = {}) => {
+const attributeRefresh = (row: Partial<App.ResAttributeInfo> = {}) => {
   const params = {
     isView: false,
     row: { ...row },
