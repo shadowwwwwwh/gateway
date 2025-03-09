@@ -1072,9 +1072,9 @@
       "children": []
     },
     {
-      "path": "/gateway-management",
-      "name": "gateway-management",
-      "component": "/gateway-management/index",
+      "path": "/gatewayManagement",
+      "name": "gatewayManagement",
+      "component": "/gatewayManagement/index",
       "meta": {
         "icon": null,
         "title": "网关管理",
