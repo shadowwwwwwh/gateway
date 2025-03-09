@@ -98,11 +98,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import ProTable from "@/components/ProTable/index.vue";
-import { getStrategyList, registerStrategies } from "@/api/modules/strategy";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { ColumnProps } from "@/components/ProTable/interface";
+import axios from "axios";
 
 // 详情状态
 const detailDialogVisible = ref(false);
@@ -120,10 +120,7 @@ const form = reactive({
 const pendingStrategies = reactive<any[]>([]);
 
 // 下拉选项
-const dataProviders = [
-  { value: "provider1", label: "提供方一" },
-  { value: "provider2", label: "提供方二" }
-];
+const dataProviders = ref<any[]>([]);
 
 const validityPeriods = [
   { value: "30", label: "30天" },
@@ -157,11 +154,23 @@ const save = async () => {
       return;
     }
 
-    await registerStrategies(pendingStrategies);
+    const policies = pendingStrategies.map(strategy => ({
+      policyName: strategy.strategyName,
+      dataOwner: strategy.dataProvider,
+      lifespan: strategy.validityPeriod === "30" ? "30天" : strategy.validityPeriod === "90" ? "90天" : "180天",
+      policyInfo: [] // 这里根据实际情况补充 policyInfo
+    }));
+
+    await axios.post("http://localhost:30075/api/policy/register", policies, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
     ElMessage.success("策略注册成功");
     dialogVisible.value = false;
     pendingStrategies.splice(0, pendingStrategies.length);
-    // 这里可以添加刷新策略列表的逻辑
+    // 刷新策略列表
+    getStrategyList();
   } catch (error) {
     ElMessage.error("策略注册失败");
   }
@@ -172,47 +181,56 @@ const cancel = () => {
   dialogVisible.value = false;
   pendingStrategies.splice(0, pendingStrategies.length);
 };
-// const showDetail = async (row: any) => {
-//   try {
-//     const res = await getStrategyDetail(row.id); // 假设的接口
-//     detailData.value = res.data;
-//     detailDialogVisible.value = true;
-//   } catch (error) {
-//     ElMessage.error("获取详情失败");
-//   }
-// };
-// 查看详情
+
 // 查看详情方法
-const showDetail = (row: any) => {
-  // 模拟详情数据（实际应从接口获取）
-  detailData.value = [
-    {
-      dataUser: "数据分析部",
-      userCategory: "技术团队",
-      accessFields: "字段A, 字段B, 字段C",
-      dataProvider: row.dataProvider
-    },
-    {
-      dataUser: "风险控制部",
-      userCategory: "管理部门",
-      accessFields: "字段D, 字段E",
-      dataProvider: row.dataProvider
-    }
-  ];
-  detailDialogVisible.value = true;
+const showDetail = async (row: any) => {
+  try {
+    const response = await axios.post(
+      "http://localhost:30075/api/policy/detail",
+      {
+        policyCode: row.strategyCode
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+    detailData.value = response.data;
+    detailDialogVisible.value = true;
+  } catch (error) {
+    ElMessage.error("获取策略详情失败");
+  }
 };
 
 // 作废方法
-const invalidStrategy = (id: number) => {
+const invalidStrategy = async (id: number) => {
   ElMessageBox.confirm("确认要作废该策略吗？", "提示", {
     confirmButtonText: "确认",
     cancelButtonText: "取消",
     type: "warning"
   })
-    .then(() => {
-      // 这里调用作废API
-      ElMessage.success("作废成功");
+    .then(async () => {
+      try {
+        await axios.post(
+          "http://localhost:30075/api/policy/abort",
+          {
+            policyCode: id
+          },
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        );
+        ElMessage.success("作废成功");
+        // 刷新策略列表
+        getStrategyList();
+      } catch (error) {
+        ElMessage.error("作废策略失败");
+      }
     })
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     .catch(() => {});
 };
 
@@ -233,10 +251,42 @@ const columns = reactive<ColumnProps<any>[]>([
   { prop: "operation", label: "操作", width: 330, fixed: "right", slot: "operation" }
 ]);
 
-const initParam = reactive({});
+const initParam = reactive({
+  pageIndex: 1,
+  pageSize: 5
+});
 const dataCallback = (data: any) => ({ list: data.list, total: data.total });
 const onReset = () => ElMessage.success("已重置搜索条件");
 const tableSearchProps = reactive({ style: { width: "100%" } });
+
+// 获取策略列表
+const getStrategyList = async () => {
+  try {
+    const response = await axios.post("http://localhost:30075/api/policy/getPolicyInfo", initParam, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    return response.data;
+  } catch (error) {
+    ElMessage.error("获取策略列表失败");
+    return { list: [], total: 0 };
+  }
+};
+
+// 获取数据提供方
+const fetchDataProviders = async () => {
+  try {
+    const response = await axios.get("http://localhost:30075/api/policy/getUserInfo");
+    dataProviders.value = response.data.map(item => ({ value: item.id, label: item.name })); // 假设返回的数据有id和name字段
+  } catch (error) {
+    ElMessage.error("获取数据提供方失败");
+  }
+};
+
+onMounted(() => {
+  fetchDataProviders();
+});
 </script>
 
 <style scoped lang="less">
