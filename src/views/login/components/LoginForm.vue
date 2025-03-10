@@ -1,7 +1,7 @@
 <template>
   <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
     <el-form-item prop="username">
-      <el-input v-model="loginForm.username" placeholder="用户名：admin / user">
+      <el-input v-model="loginForm.username" placeholder="用户名：pkc">
         <template #prefix>
           <el-icon class="el-input__icon">
             <user />
@@ -10,13 +10,31 @@
       </el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="loginForm.password" type="password" placeholder="密码：123456" show-password autocomplete="new-password">
+      <el-input
+        v-model="loginForm.password"
+        type="password"
+        placeholder="密码：password"
+        show-password
+        autocomplete="new-password"
+      >
         <template #prefix>
           <el-icon class="el-input__icon">
             <lock />
           </el-icon>
         </template>
       </el-input>
+    </el-form-item>
+    <el-form-item prop="code">
+      <el-row>
+        <el-col :span="16">
+          <el-input v-model="loginForm.captcha" placeholder="验证码" autocomplete="off" size="" />
+        </el-col>
+        <el-col :span="8">
+          <div class="login-code" @click="refreshCode">
+            <img v-if="identifyCode" :src="identifyCode" alt="Captcha" />
+          </div>
+        </el-col>
+      </el-row>
     </el-form-item>
   </el-form>
   <div class="login-btn">
@@ -33,15 +51,14 @@ import { useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 // import { getTimeState } from "@/utils";
 import { Login } from "@/api/interface";
-import { ElNotification } from "element-plus";
-import { loginApi } from "@/api/modules/login";
+import { ElMessage } from "element-plus";
+import { getCaptchaId, loginApi } from "@/api/modules/login";
 import { useUserStore } from "@/stores/modules/user";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
-import md5 from "md5";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -52,14 +69,18 @@ type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const loginRules = reactive({
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  captcha: [{ required: true, message: "请输入验证码", trigger: "blur" }]
 });
 
 const loading = ref(false);
 const loginForm = reactive<Login.ReqLoginForm>({
   username: "",
-  password: ""
+  password: "",
+  captcha: ""
 });
+//const identifyCodes = "1234abc";
+const identifyCode = ref<string | null | undefined>(null);
 
 // login
 const login = (formEl: FormInstance | undefined) => {
@@ -67,10 +88,25 @@ const login = (formEl: FormInstance | undefined) => {
   formEl.validate(async valid => {
     if (!valid) return;
     loading.value = true;
+    // if (loginForm.code.toLowerCase() !== identifyCode.value.toLowerCase()) {
+    //   ElMessage.error("验证码错误");
+    //   refreshCode();
+    //   loginForm.code = "";
+    //   loading.value = false;
+    //   return;
+    // }
     try {
       // 1.执行登录接口
-      const { data } = await loginApi({ ...loginForm, password: md5(loginForm.password) });
-      userStore.setToken(data.access_token);
+      const data = await loginApi({ ...loginForm });
+      // 2.判断是否成功
+      if (data.statusCode !== 200) {
+        ElMessage.error("登录失败");
+        refreshCode();
+        loginForm.captcha = "";
+        loading.value = false;
+        return;
+      }
+      userStore.setToken("token");
 
       // 2.添加动态路由
       await initDynamicRouter();
@@ -81,19 +117,6 @@ const login = (formEl: FormInstance | undefined) => {
 
       // 4.跳转到首页
       router.push(HOME_URL);
-      // ElNotification({
-      //   title: getTimeState(),
-      //   message: "欢迎登录 Geeker-Admin",
-      //   type: "success",
-      //   duration: 3000
-      // });
-      // ElNotification({
-      //   title: "React 付费版本 🔥🔥🔥",
-      //   dangerouslyUseHTMLString: true,
-      //   message: "预览地址：<a href='https://pro.spicyboy.cn'>https://pro.spicyboy.cn</a>",
-      //   type: "success",
-      //   duration: 8000
-      // });
     } finally {
       loading.value = false;
     }
@@ -105,8 +128,32 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
 };
+//验证码
+// const makecode = (codes, length) => {
+//   identifyCode.value = "";
+//   for (let i = 0; i < length; i++) {
+//     identifyCode.value += codes[Math.floor(Math.random() * codes.length)];
+//   }
+// };
+const makecode = async () => {
+  try {
+    const response = await getCaptchaId(); // 发送请求到后端
+    return response || null;
+  } catch (error) {
+    console.error("获取验证码失败:", error);
+    return null; // 失败时返回 null
+  }
+};
 
+//刷新验证码
+// const refreshCode = () => {
+//   identifyCode.value = makecode();
+// };
+const refreshCode = async () => {
+  identifyCode.value = await makecode();
+};
 onMounted(() => {
+  refreshCode();
   // 监听 enter 事件（调用登录）
   document.onkeydown = (e: KeyboardEvent) => {
     if (e.code === "Enter" || e.code === "enter" || e.code === "NumpadEnter") {
@@ -122,5 +169,5 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped lang="scss">
-@import "../index.scss";
+@import "../index";
 </style>
