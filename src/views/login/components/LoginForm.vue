@@ -107,7 +107,16 @@ const login = (formEl: FormInstance | undefined) => {
         return;
       }
       userStore.setToken("token");
+      type UserState = {
+        userInfo: {
+          name: string;
+        };
+      };
 
+      const userInfo: UserState["userInfo"] = {
+        name: loginForm.username
+      };
+      userStore.setUserInfo(userInfo);
       // 2.添加动态路由
       await initDynamicRouter();
 

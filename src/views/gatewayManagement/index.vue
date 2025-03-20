@@ -48,7 +48,7 @@
       <!-- 操作列插槽 -->
       <template #operation="scope">
         <el-button type="primary" link @click="initPassword(scope.row)">初始化密码</el-button>
-        <el-button type="danger" link @click="deleteGateway(scope.row.id)">删除</el-button>
+        <el-button type="danger" link @click="deleteGateway(scope.row)">删除</el-button>
       </template>
     </ProTable>
   </div>
@@ -59,6 +59,7 @@ import { reactive, ref } from "vue";
 import ProTable from "@/components/ProTable/index.vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { ColumnProps } from "@/components/ProTable/interface";
+import axios from "axios";
 
 // 网关相关状态
 const dialogVisible = ref(false);
@@ -78,11 +79,11 @@ const userCategories = [
 // 表格列配置
 const columns = reactive<ColumnProps<any>[]>([
   { type: "index", label: "序号", width: 60 },
-  { prop: "name", label: "网关名称", width: 120, search: { el: "input" } },
-  { prop: "account", label: "账号", width: 150 },
-  { prop: "userCategory", label: "使用方", width: 120 },
-  { prop: "appCount", label: "应用数", width: 100 },
-  { prop: "status", label: "状态", width: 100 },
+  { prop: "gatewayName", label: "网关名称" },
+  { prop: "account", label: "账号" },
+  { prop: "user", label: "使用方" },
+  { prop: "applicationNum", label: "应用数" },
+  { prop: "gatewayStatus", label: "状态" },
   {
     prop: "operation",
     label: "操作",
@@ -92,32 +93,31 @@ const columns = reactive<ColumnProps<any>[]>([
   }
 ]);
 
-// 模拟API
-const getGatewayList = async () => {
-  return {
-    code: 200,
-    data: {
-      list: [
-        {
-          id: 1,
-          name: "网关A",
-          account: "gateway_a",
-          userCategory: "技术部",
-          appCount: 5,
-          status: "已启用"
-        },
-        {
-          id: 2,
-          name: "网关B",
-          account: "gateway_b",
-          userCategory: "市场部",
-          appCount: 3,
-          status: "已停用"
-        }
-      ],
-      total: 2
-    }
-  };
+// 获取网关列表
+const getGatewayList = async (params: any) => {
+  try {
+    const response = await axios.post("/api/gateway/getGatewayInfo", {
+      pageIndex: params.pageIndex || 1,
+      pageSize: params.pageSize || 3
+    });
+    console.log("response", response.data.gatewayInfo);
+    return {
+      code: response.data.statusCode,
+      data: {
+        list: response.data.gatewayInfo,
+        total: response.data.gatewayInfo.length // 假设返回的列表长度就是总数，实际情况可能需要调整
+      }
+    };
+  } catch (error) {
+    ElMessage.error("获取网关列表失败");
+    return {
+      code: 500,
+      data: {
+        list: [],
+        total: 0
+      }
+    };
+  }
 };
 
 // 保存网关
@@ -128,48 +128,84 @@ const saveGateway = async () => {
       return;
     }
 
-    // 这里调用注册API
-    ElMessage.success("注册成功");
-    dialogVisible.value = false;
-    Object.assign(gatewayForm, {
-      name: "",
-      account: "",
-      password: "",
-      userCategory: ""
+    const dataUser = userCategories.find(item => item.value === gatewayForm.userCategory)?.label;
+    const response = await axios.post("/api/gateway/register", {
+      gatewayname: gatewayForm.name,
+      account: gatewayForm.account,
+      password: gatewayForm.password,
+      dataUser
     });
+
+    if (response.data.code === 200) {
+      ElMessage.success("注册成功");
+      dialogVisible.value = false;
+      Object.assign(gatewayForm, {
+        name: "",
+        account: "",
+        password: "",
+        userCategory: ""
+      });
+    } else {
+      ElMessage.error("注册失败");
+    }
   } catch (error) {
     ElMessage.error("注册失败");
   }
 };
 
 // 初始化密码
-const initPassword = (row: any) => {
-  ElMessageBox.confirm(`确定要初始化【${row.name}】的密码吗？`, "提示", {
+const initPassword = async (row: any) => {
+  ElMessageBox.confirm(`确定要初始化【${row.gatewayName}】的密码吗？`, "提示", {
     type: "warning"
   })
-    .then(() => {
-      ElMessage.success("密码已初始化");
+    .then(async () => {
+      try {
+        const response = await axios.post("/api/gateway/initPwd", {
+          gatewayName: row.gatewayName,
+          account: row.account
+        });
+
+        if (response.data.code === 200) {
+          ElMessage.success("密码已初始化");
+        } else {
+          ElMessage.error("密码初始化失败");
+        }
+      } catch (error) {
+        ElMessage.error("密码初始化失败");
+      }
     })
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    .catch(() => {
-    });
+    .catch(() => {});
 };
 
 // 删除网关
-const deleteGateway = (id: number) => {
-  console.log(id);
+const deleteGateway = async (row: any) => {
   ElMessageBox.confirm("确定要删除该网关吗？", "提示", {
     type: "warning"
-  }).then(() => {
-    ElMessage.success("删除成功");
-  }).catch(() => {
-  });
+  })
+    .then(async () => {
+      try {
+        const response = await axios.post("/api/gateway/delete", {
+          gatewayName: row.gatewayName,
+          account: row.account
+        });
+
+        if (response.data.code === 200) {
+          ElMessage.success("删除成功");
+        } else {
+          ElMessage.error("删除失败");
+        }
+      } catch (error) {
+        ElMessage.error("删除失败");
+      }
+    })
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    .catch(() => {});
 };
 
 // 其他原有逻辑
 const initParam = reactive({});
 const dataCallback = (data: any) => ({ list: data.list, total: data.total });
-const onReset = () => ElMessage.success("已重置搜索条件");
 const tableSearchProps = reactive({ style: { width: "100%" } });
 const cancel = () => {
   dialogVisible.value = false;
@@ -182,7 +218,7 @@ const cancel = () => {
 };
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .action-bar {
   margin-bottom: 16px;
   text-align: right;
@@ -191,15 +227,6 @@ const cancel = () => {
     width: 120px;
     height: 36px;
     font-size: 14px;
-  }
-}
-
-/* 强制确保表格宽度 */
-:deep(.pro-table) {
-  width: 100% !important;
-
-  .el-table {
-    width: 100% !important;
   }
 }
 </style>

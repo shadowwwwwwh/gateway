@@ -21,7 +21,7 @@
   </div>
 </template>
 
-<script setup lang="tsx" name="useProTable">
+<script setup lang="tsx">
 import { ref, reactive } from "vue";
 import { App } from "@/api/interface";
 import { useHandleData } from "@/hooks/useHandleData";
@@ -52,7 +52,7 @@ const dataCallback = (data: any) => {
 // 表格配置项
 const columns = reactive<ColumnProps<App.ReqApplication>[]>([
   {
-    prop: "sort",
+    prop: "index",
     label: "序号"
   },
   {
@@ -77,12 +77,22 @@ const columns = reactive<ColumnProps<App.ReqApplication>[]>([
 
 // 删除用户信息
 const deleteAccount = async (params: App.ReqApplication) => {
-  await useHandleData(
-    getApplicationDelete,
-    { applicationName: [params.ApplicationName] },
-    `删除【${params.ApplicationName}】用户`
-  );
-  proTable.value?.getTableList();
+  try {
+    // 调用 useHandleData 函数进行删除操作
+    await useHandleData(
+      getApplicationDelete,
+      { applicationName: params.ApplicationName },
+      `删除【${params.ApplicationName}】用户`
+    );
+
+    // 操作成功后重新加载表格数据
+    if (proTable.value) {
+      await proTable.value.getTableList();
+    }
+  } catch (error) {
+    console.error("删除用户时出现错误:", error);
+    // 可以在这里添加更多的错误处理逻辑，比如显示错误提示框等
+  }
 };
 //令牌检查
 const checkTokenRef = ref<InstanceType<typeof TokenRefresh> | null>(null);

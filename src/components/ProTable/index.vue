@@ -2,8 +2,9 @@
 
 <template>
   <!-- 查询表单 -->
+  <!--    v-show="isShowSearch"-->
   <SearchForm
-    v-show="isShowSearch"
+    v-show="false"
     :search="_search"
     :reset="_reset"
     :columns="searchColumns"

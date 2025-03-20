@@ -48,7 +48,7 @@ const dataCallback = (data: any) => {
 // 表格配置项
 const columns = reactive<ColumnProps<App.ResAttributeInfo>[]>([
   {
-    prop: "sort",
+    prop: "index",
     label: "序号"
   },
   {
@@ -69,8 +69,24 @@ const columns = reactive<ColumnProps<App.ResAttributeInfo>[]>([
 
 // 删除用户信息
 const deleteAccount = async (params: App.ResAttributeInfo) => {
-  await useHandleData(getAttributeDelete, { applicationName: [params.Name] }, `删除【${params.Name}】用户`);
-  proTable.value?.getTableList();
+  try {
+    // 构建传递给 getAttributeDelete 的参数
+    const param = {
+      userName: params.Name,
+      userOccupation: params.Occupation
+    };
+
+    // 调用 useHandleData 函数进行删除操作
+    await useHandleData(getAttributeDelete, param, `删除【${params.Name}】用户`);
+
+    // 操作成功后重新加载表格数据
+    if (proTable.value) {
+      await proTable.value.getTableList();
+    }
+  } catch (error) {
+    console.error("删除用户时出现错误:", error);
+    // 可以在这里添加更多的错误处理逻辑，比如显示错误提示框等
+  }
 };
 //属性更新
 const attributeRefreshRef = ref<InstanceType<typeof AttributeRefresh> | null>(null);

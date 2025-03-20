@@ -142,9 +142,27 @@ export const getApplicationUpdate = async (params: App.ReqApplicationUpdate) => 
 };
 //应用删除
 export const getApplicationDelete = (params: { applicationName: string }) => {
-  return http.post(`/api/application/delete`, params);
+  console.log("params", params);
+  return axios
+    .post<App.ResApplicationInfo>(`/api/application/delete`, params)
+    .then(response => {
+      const data = response.data;
+      // 检查响应状态码
+      if (data.statusCode === 200) {
+        // 状态码为 200 时返回响应数据
+        return data;
+      } else {
+        // 状态码不为 200 时抛出错误
+        throw new Error(`请求失败，状态码: ${data.statusCode}, 内容: ${data.statusContent}`);
+      }
+    })
+    .catch(error => {
+      // 捕获请求过程中的错误
+      console.error("删除应用时发生错误:", error);
+      // 重新抛出错误，方便调用者处理
+      throw error;
+    });
 };
-
 // 属性列表
 export const getAttributeList = (params: App.ReqApplicationInfo) => {
   return axios

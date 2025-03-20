@@ -53,7 +53,6 @@ interface Params {
 }
 // 接收父组件传过来的参数
 const acceptParams = (params: Params) => {
-  console.log("📢 接收到的参数 params:", params);
 
   // 进行字段转换
   const transformedRow: App.ReqApplicationUpdate = {
@@ -71,8 +70,6 @@ const acceptParams = (params: Params) => {
   };
 
   drawerVisible.value = true;
-
-  console.log("📢 更新后的 drawerProps.value:", drawerProps.value);
 };
 // 提交数据（新增/编辑）
 const ruleFormRef = ref<FormInstance>();

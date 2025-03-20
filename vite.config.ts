@@ -48,6 +48,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           target: "http://localhost:30080/api",
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/api/, "")
+          //rewrite: path => path,
+          // bypass(req, res, options) {
+          //   //@ts-expect-error
+          //   const proxyUrl = new URL(options.rewrite(req.url) || "", options.target as string)?.href || "";
+          //   console.log(proxyUrl);
+          //   req.headers["x-req-proxyUrl"] = proxyUrl;
+          //   res.setHeader("x-res-proxyUrl", proxyUrl);
+          // }
         }
       }
     },
