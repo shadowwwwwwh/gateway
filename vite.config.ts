@@ -45,7 +45,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       //proxy: createProxy(viteEnv.VITE_PROXY)
       proxy: {
         "/api": {
-          target: "http://abe_server:30080",
+          target: "http://abe_server:30080/api",
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/api/, "")
           //rewrite: path => path,
