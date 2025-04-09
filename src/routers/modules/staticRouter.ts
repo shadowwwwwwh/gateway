@@ -1,6 +1,7 @@
 import { RouteRecordRaw } from "vue-router";
 import { HOME_URL, LOGIN_URL } from "@/config";
-
+import StrategyManagement from '@/views/strategyManagement/index.vue';
+import GatewayManagement from '@/views/gatewayManagement/index.vue';
 /**
  * staticRouter (静态路由)
  */
@@ -24,6 +25,16 @@ export const staticRouter: RouteRecordRaw[] = [
     // component: () => import("@/layouts/indexAsync.vue"),
     redirect: HOME_URL,
     children: []
+  },
+  {
+    path: "/strategyManagement",
+    name: "strategyManagement",
+    component: StrategyManagement
+  },
+  {
+    path: "/gatewayManagement",
+    name: "gatewayManagement",
+    component: GatewayManagement
   }
 ];
 

@@ -2,13 +2,13 @@
   <div class="login-container flx-center">
     <div class="login-box">
       <SwitchDark class="dark" />
-      <div class="login-left">
-        <img class="login-left-img" src="@/assets/images/login_left.png" alt="login" />
-      </div>
+<!--      <div class="login-left">-->
+<!--        <img class="login-left-img" src="@/assets/images/login_left.png" alt="login" />-->
+<!--      </div>-->
       <div class="login-form">
         <div class="login-logo">
-          <img class="login-icon" src="@/assets/images/logo.svg" alt="" />
-          <h2 class="logo-text">Geeker-Admin</h2>
+<!--          <img class="login-icon" src="@/assets/images/logo.svg" alt="" />-->
+          <h2 class="logo-text">数据受控共享系统</h2>
         </div>
         <LoginForm />
       </div>
@@ -22,5 +22,5 @@ import SwitchDark from "@/components/SwitchDark/index.vue";
 </script>
 
 <style scoped lang="scss">
-@import "./index.scss";
+@import "./index";
 </style>

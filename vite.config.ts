@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv, ConfigEnv, UserConfig } from "vite";
 import { resolve } from "path";
 import { wrapperEnv } from "./build/getEnv";
-import { createProxy } from "./build/proxy";
 import { createVitePlugins } from "./build/plugins";
 import pkg from "./package.json";
 import dayjs from "dayjs";
@@ -43,7 +42,24 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       open: viteEnv.VITE_OPEN,
       cors: true,
       // Load proxy configuration from .env.development
-      proxy: createProxy(viteEnv.VITE_PROXY)
+      //proxy: createProxy(viteEnv.VITE_PROXY)
+      proxy: {
+        "/api": {
+          target: "http://abe_server:30080",
+          // target: "http://39.96.137.165:30080",
+          changeOrigin: true,
+          // rewrite: (path: string) => path.replace(/^\/api/, "")
+          rewrite: path => path,
+          bypass(req, res, options) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-expect-error
+            const proxyUrl = new URL(options.rewrite(req.url) || "", options.target as string)?.href || "";
+            console.log(proxyUrl);
+            req.headers["x-req-proxyUrl"] = proxyUrl;
+            res.setHeader("x-res-proxyUrl", proxyUrl);
+          }
+        }
+      }
     },
     plugins: createVitePlugins(viteEnv),
     esbuild: {

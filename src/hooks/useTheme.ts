@@ -8,6 +8,9 @@ import { menuTheme } from "@/styles/theme/menu";
 import { asideTheme } from "@/styles/theme/aside";
 import { headerTheme } from "@/styles/theme/header";
 
+// 定义蓝色主题色
+const BLUE_PRIMARY = "#1890ff";
+
 /**
  * @description 全局主题 hooks
  * */
@@ -20,17 +23,16 @@ export const useTheme = () => {
     const html = document.documentElement as HTMLElement;
     if (isDark.value) html.setAttribute("class", "dark");
     else html.setAttribute("class", "");
-    changePrimary(primary.value);
+    changePrimary(BLUE_PRIMARY);
     setAsideTheme();
     setHeaderTheme();
   };
 
   // 修改主题颜色
   const changePrimary = (val: string | null) => {
-    if (!val) {
-      val = DEFAULT_PRIMARY;
-      ElMessage({ type: "success", message: `主题颜色已重置为 ${DEFAULT_PRIMARY}` });
-    }
+    // 强制将主题色设置为蓝色
+    val = BLUE_PRIMARY;
+    ElMessage({ type: "success", message: `主题颜色已设置为 ${BLUE_PRIMARY}` });
     // 计算主题颜色变化
     document.documentElement.style.setProperty("--el-color-primary", val);
     document.documentElement.style.setProperty(

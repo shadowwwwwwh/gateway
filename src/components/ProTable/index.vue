@@ -2,8 +2,9 @@
 
 <template>
   <!-- 查询表单 -->
+  <!--    v-show="isShowSearch"-->
   <SearchForm
-    v-show="isShowSearch"
+    v-show="false"
     :search="_search"
     :reset="_reset"
     :columns="searchColumns"
@@ -187,8 +188,8 @@ const processTableData = computed(() => {
   if (!props.data) return tableData.value;
   if (!props.pagination) return props.data;
   return props.data.slice(
-    (pageable.value.pageNum - 1) * pageable.value.pageSize,
-    pageable.value.pageSize * pageable.value.pageNum
+    (pageable.value.pageIndex - 1) * pageable.value.pageSize,
+    pageable.value.pageSize * pageable.value.pageIndex
   );
 });
 
