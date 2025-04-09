@@ -52,13 +52,14 @@ const dataCallback = (data: any) => {
 // 表格配置项
 const columns = reactive<ColumnProps<App.ReqApplication>[]>([
   {
-    prop: "index",
-    label: "序号"
+    type: "index",
+    label: "序号",
+    width: 60
   },
   {
     prop: "ApplicationName",
-    label: "应用名",
-    search: { el: "input" }
+    label: "应用名"
+    // search: { el: "input" }
   },
   {
     prop: "Domain",

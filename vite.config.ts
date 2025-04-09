@@ -46,16 +46,18 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       proxy: {
         "/api": {
           target: "http://abe_server:30080",
+          // target: "http://39.96.137.165:30080",
           changeOrigin: true,
-          rewrite: (path: string) => path.replace(/^\/api/, "")
-          //rewrite: path => path,
-          // bypass(req, res, options) {
-          //   //@ts-expect-error
-          //   const proxyUrl = new URL(options.rewrite(req.url) || "", options.target as string)?.href || "";
-          //   console.log(proxyUrl);
-          //   req.headers["x-req-proxyUrl"] = proxyUrl;
-          //   res.setHeader("x-res-proxyUrl", proxyUrl);
-          // }
+          // rewrite: (path: string) => path.replace(/^\/api/, "")
+          rewrite: path => path,
+          bypass(req, res, options) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-expect-error
+            const proxyUrl = new URL(options.rewrite(req.url) || "", options.target as string)?.href || "";
+            console.log(proxyUrl);
+            req.headers["x-req-proxyUrl"] = proxyUrl;
+            res.setHeader("x-res-proxyUrl", proxyUrl);
+          }
         }
       }
     },

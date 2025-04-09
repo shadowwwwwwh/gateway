@@ -78,7 +78,7 @@ export const getAppInfoOnly = (params: App.ReqApplicationInfo) => {
       const newRes = {
         data: {
           list: response.data.appInfo,
-          total: response.data.appInfo.length
+          total: response.data.totalCount
         },
         success: true
       };
@@ -166,16 +166,12 @@ export const getApplicationDelete = (params: { applicationName: string }) => {
 // 属性列表
 export const getAttributeList = (params: App.ReqApplicationInfo) => {
   return axios
-    .post<App.ResAttribute>(
-      `/api/attribute/getAttributeInfo
-`,
-      params
-    )
+    .post<App.ResAttribute>(`/api/attribute/getAttributeInfo`, params)
     .then(res => {
       const newRes = {
         data: {
           list: res.data.attributeInfo,
-          total: res.data.attributeInfo.length
+          total: res.data.totalCount
         },
         success: true
       };
@@ -210,6 +206,7 @@ export const getAttributeUpdate = (params: App.ReqAttribute) => {
 };
 // 属性删除
 export const getAttributeDelete = (params: App.ReqAttribute) => {
+  console.log("params", params);
   return axios
     .post<App.ReqAttribute>(`/api/attribute/delete`, params)
     .then(res => {

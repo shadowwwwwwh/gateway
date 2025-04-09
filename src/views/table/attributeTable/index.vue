@@ -48,8 +48,9 @@ const dataCallback = (data: any) => {
 // 表格配置项
 const columns = reactive<ColumnProps<App.ResAttributeInfo>[]>([
   {
-    prop: "index",
-    label: "序号"
+    type: "index",
+    label: "序号",
+    width: 60
   },
   {
     prop: "Name",

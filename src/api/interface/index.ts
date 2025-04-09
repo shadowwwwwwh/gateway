@@ -102,11 +102,12 @@ export namespace App {
   }
   export interface ResApplicationInfoList {
     appInfo: ReqApplication[];
+    totalCount: number;
     success: boolean;
   }
   export interface ResAttribute {
     attributeInfo: ResAttributeInfo[];
-    total: number;
+    totalCount: number;
     success: boolean;
   }
   export interface ResAttributeInfo {

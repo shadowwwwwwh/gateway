@@ -80,7 +80,7 @@
     </el-dialog>
 
     <!-- 策略列表表格 -->
-    <ProTable :columns="columns" :init-param="initParam" :data-callback="dataCallback" :request-api="getStrategyList">
+    <ProTable :columns="columns" :data-callback="dataCallback" :request-api="getStrategyList">
       <template #operation="scope">
         <el-button type="primary" link @click="showDetail(scope.row)">查看详情</el-button>
         <el-button type="danger" link @click="invalidStrategy(scope.row.strategyCode)">作废</el-button>
@@ -328,18 +328,21 @@ const columns = reactive<ColumnProps<any>[]>([
   { prop: "operation", label: "操作", width: 330, fixed: "right", slot: "operation" }
 ]);
 
-const initParam = reactive({
-  pageIndex: 1,
-  pageSize: 5
-});
+// const initParam = reactive({
+//   pageIndex: 1,
+//   pageSize: 10
+// });
 const dataCallback = (data: any) => ({ list: data.list, total: data.total });
 ElMessage.success("已重置搜索条件");
 // const tableSearchProps = reactive({ style: { width: "100%" } });
 
 // 获取策略列表
-const getStrategyList = async () => {
+const getStrategyList = async (params: any) => {
   try {
-    const response = await axios.post("/api/policy/getPolicyInfo", initParam);
+    const response = await axios.post("/api/policy/getPolicyInfo", {
+      pageIndex: params.pageIndex || 1,
+      pageSize: params.pageSize || 3
+    });
     console.log(response.data);
 
     // 映射数据字段
@@ -355,7 +358,7 @@ const getStrategyList = async () => {
     const newRes = {
       data: {
         list: mappedList,
-        total: mappedList.length
+        total: response.data.totalCount
       },
       success: true
     };

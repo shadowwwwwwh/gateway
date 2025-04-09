@@ -39,10 +39,12 @@ export const getAuthButtonListApi = () => {
 export const logoutApi = () => {
   return http.post(PORT1 + `/logout`);
 };
+
 //获取验证码
 export const getCaptchaId = async (): Promise<string | undefined> => {
   // 返回图片URL
   try {
+    console.log("请求后端验证码");
     const response = await axios.post(
       `api/getCaptcha`,
       {},
@@ -52,8 +54,7 @@ export const getCaptchaId = async (): Promise<string | undefined> => {
     );
 
     // 创建对象URL
-    const imageUrl = URL.createObjectURL(response.data as Blob);
-    return imageUrl;
+    return URL.createObjectURL(response.data as Blob);
   } catch (error) {
     console.error("获取验证码失败:", error);
     return undefined;

@@ -105,7 +105,7 @@ const getGatewayList = async (params: any) => {
       code: response.data.statusCode,
       data: {
         list: response.data.gatewayInfo,
-        total: response.data.gatewayInfo.length // 假设返回的列表长度就是总数，实际情况可能需要调整
+        total: response.data.totalCount // 假设返回的列表长度就是总数，实际情况可能需要调整
       }
     };
   } catch (error) {
@@ -136,7 +136,7 @@ const saveGateway = async () => {
       dataUser
     });
 
-    if (response.data.code === 200) {
+    if (response.data.statusCode === 200) {
       ElMessage.success("注册成功");
       dialogVisible.value = false;
       Object.assign(gatewayForm, {
@@ -145,6 +145,8 @@ const saveGateway = async () => {
         password: "",
         userCategory: ""
       });
+      // 刷新列表
+      await getGatewayList({});
     } else {
       ElMessage.error("注册失败");
     }
@@ -165,7 +167,7 @@ const initPassword = async (row: any) => {
           account: row.account
         });
 
-        if (response.data.code === 200) {
+        if (response.data.statusCode === 200) {
           ElMessage.success("密码已初始化");
         } else {
           ElMessage.error("密码初始化失败");
@@ -190,8 +192,10 @@ const deleteGateway = async (row: any) => {
           account: row.account
         });
 
-        if (response.data.code === 200) {
+        if (response.data.statusCode === 200) {
           ElMessage.success("删除成功");
+          // 刷新列表
+          await getGatewayList({});
         } else {
           ElMessage.error("删除失败");
         }
