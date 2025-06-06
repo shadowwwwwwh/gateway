@@ -12,7 +12,7 @@ import axios from "axios";
 // 用户登录
 export const loginApi = (params: Login.ReqLoginForm) => {
   return axios
-    .post<Login.ResLogin>(`api/system/login`, params)
+    .post<Login.ResLogin>(`api/gateway/login`, params)
     .then(response => {
       return response.data;
     })
@@ -41,13 +41,13 @@ export const logoutApi = () => {
 };
 
 //获取验证码
-export const getCaptchaId = async (): Promise<string | undefined> => {
+export const getCaptchaId = async (account :string): Promise<string | undefined> => {
   // 返回图片URL
   try {
     console.log("请求后端验证码");
     const response = await axios.post(
-      `api/getCaptcha`,
-      {},
+      `/api/gateway/getCaptcha`,
+      {account},
       {
         responseType: "blob" // 关键配置项
       }

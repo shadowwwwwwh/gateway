@@ -33,9 +33,9 @@ export namespace Upload {
 // 登录模块
 export namespace Login {
   export interface ReqLoginForm {
-    username: string;
+    account: string;
     password: string;
-    captcha: string;
+    verificationCode: string;
   }
   export interface ResLogin {
     statusCode: number;
@@ -88,6 +88,30 @@ export namespace User {
     id: string;
     name: string;
     children?: ResDepartment[];
+  }
+}
+//
+export  namespace Gateway {
+  export interface ResGatewayList {
+    statusCode: number;
+    statusContent: string;
+    attributeInfo: ResGatewayInfo[];
+    totalCount: number;
+  }
+  export interface ResGatewayInfo {
+    Name: string;
+    Attribute: string;
+    Occupation: string;
+  }
+  export interface ReqGatewayParams extends ReqPage {
+    account: string;
+  }
+  export interface ReqGetSecretKey {
+    userAttribute: string;
+    account: string;
+  }
+  export interface ResGetSecretKey {
+    secretKey: string;
   }
 }
 //应用注册

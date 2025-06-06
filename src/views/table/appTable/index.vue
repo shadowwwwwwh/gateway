@@ -31,7 +31,7 @@ import AppRegister from "@/views/table/appTable/appRegister.vue";
 import TokenRefresh from "@/views/table/appTable/tokenRefresh.vue";
 import { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import { CirclePlus, Delete, EditPen, View } from "@element-plus/icons-vue";
-import { getApplicationRegister, getAppInfoOnly, getApplicationUpdate, getApplicationDelete } from "@/api/modules/user";
+import { getApplicationRegister, getAppInfoOnly, getApplicationUpdate, getApplicationDelete } from "@/api/modules/gateway";
 
 // ProTable 实例
 const proTable = ref<ProTableInstance>();

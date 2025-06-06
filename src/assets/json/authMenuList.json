@@ -16,48 +16,18 @@
       }
     },
     {
-      "path": "/table/attributeTable",
-      "name": "attributeTable",
-      "component": "/table/attributeTable/index",
+      "path": "/table/keyTable",
+      "name": "keyTable",
+      "component": "/table/keyTable/index",
       "meta": {
         "icon": "Menu",
-        "title": "属性管理",
+        "title": "密钥管理",
         "isLink": "",
         "isHide": false,
         "isFull": false,
         "isAffix": false,
         "isKeepAlive": true
       }
-    },
-    {
-      "path": "/strategyManagement",
-      "name": "strategyManagement",
-      "component": "/strategyManagement/index",
-      "meta": {
-        "icon": "Menu",
-        "title": "策略管理",
-        "isLink": "",
-        "isHide": false,
-        "isFull": false,
-        "isAffix": false,
-        "isKeepAlive": true
-      },
-      "children": []
-    },
-    {
-      "path": "/gatewayManagement",
-      "name": "gatewayManagement",
-      "component": "/gatewayManagement/index",
-      "meta": {
-        "icon": "Menu",
-        "title": "网关管理",
-        "isLink": "",
-        "isHide": false,
-        "isFull": false,
-        "isAffix": false,
-        "isKeepAlive": true
-      },
-      "children": []
     }
   ],
   "msg": "成功"

@@ -1,13 +1,16 @@
 <template>
   <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
     <el-form-item prop="username">
-      <el-input v-model="loginForm.username" placeholder="请输入用户名：pkc">
-        <template #prefix>
-          <el-icon class="el-input__icon">
-            <user />
-          </el-icon>
-        </template>
-      </el-input>
+      <div style="display: flex; gap: 10px; align-items: center;width: 100%">
+        <el-input v-model="loginForm.account" placeholder="请输入用户名：pkc">
+          <template #prefix>
+            <el-icon class="el-input__icon">
+              <user />
+            </el-icon>
+          </template>
+        </el-input>
+        <el-button @click="applyCaptcha" :disabled="!loginForm.account">申请验证码</el-button>
+      </div>
     </el-form-item>
     <el-form-item prop="password">
       <el-input
@@ -24,10 +27,10 @@
         </template>
       </el-input>
     </el-form-item>
-    <el-form-item prop="code">
+    <el-form-item prop="captcha">
       <el-row>
-        <el-col :span="8">
-          <el-input v-model="loginForm.captcha" placeholder="验证码" autocomplete="off" style="margin-top: 10%" />
+        <el-col :span="9">
+          <el-input v-model="loginForm.verificationCode" placeholder="验证码" autocomplete="off" style="margin-top: 10%" />
         </el-col>
         <el-col :span="8" style="margin-left: 10%">
           <div class="login-code" @click="refreshCode">
@@ -68,18 +71,17 @@ const keepAliveStore = useKeepAliveStore();
 type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const loginRules = reactive({
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  account: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-  captcha: [{ required: true, message: "请输入验证码", trigger: "blur" }]
+  verificationCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
 });
 
 const loading = ref(false);
 const loginForm = reactive<Login.ReqLoginForm>({
-  username: "",
+  account: "",
   password: "",
-  captcha: ""
+  verificationCode: ""
 });
-//const identifyCodes = "1234abc";
 const identifyCode = ref<string | null | undefined>(null);
 
 // login
@@ -88,13 +90,6 @@ const login = (formEl: FormInstance | undefined) => {
   formEl.validate(async valid => {
     if (!valid) return;
     loading.value = true;
-    // if (loginForm.code.toLowerCase() !== identifyCode.value.toLowerCase()) {
-    //   ElMessage.error("验证码错误");
-    //   refreshCode();
-    //   loginForm.code = "";
-    //   loading.value = false;
-    //   return;
-    // }
     try {
       // 1.执行登录接口
       const data = await loginApi({ ...loginForm });
@@ -104,7 +99,7 @@ const login = (formEl: FormInstance | undefined) => {
       if (data.statusCode !== 200) {
         ElMessage.error("登录失败");
         refreshCode();
-        loginForm.captcha = "";
+        loginForm.verificationCode = "";
         loading.value = false;
         return;
       }
@@ -116,7 +111,7 @@ const login = (formEl: FormInstance | undefined) => {
       };
 
       const userInfo: UserState["userInfo"] = {
-        name: loginForm.username
+        name: loginForm.account
       };
       userStore.setUserInfo(userInfo);
       // 2.添加动态路由
@@ -142,17 +137,21 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
 };
+
+// 申请验证码
+const applyCaptcha = async () => {
+  if (!loginForm.account) {
+    ElMessage.error("请先输入用户名");
+    return;
+  }
+  identifyCode.value = await makecode(loginForm.account);
+};
+
 //验证码
-// const makecode = (codes, length) => {
-//   identifyCode.value = "";
-//   for (let i = 0; i < length; i++) {
-//     identifyCode.value += codes[Math.floor(Math.random() * codes.length)];
-//   }
-// };
-const makecode = async () => {
+const makecode = async (username: string) => {
   console.log("make code 获取验证码");
   try {
-    const response = await getCaptchaId(); // 发送请求到后端
+    const response = await getCaptchaId(loginForm.account); // 发送请求到后端
     return response || null;
   } catch (error) {
     console.error("获取验证码失败:", error);
@@ -161,16 +160,17 @@ const makecode = async () => {
 };
 
 //刷新验证码
-// const refreshCode = () => {
-//   identifyCode.value = makecode();
-// };
 const refreshCode = async () => {
   console.log("刷新验证码");
-  identifyCode.value = await makecode();
+  if (loginForm.account) {
+    identifyCode.value = await makecode(loginForm.account);
+  } else {
+    ElMessage.error("请先输入用户名");
+  }
 };
+
 onMounted(() => {
   console.log("mounted 加载验证码");
-  refreshCode();
   // 监听 enter 事件（调用登录）
   document.onkeydown = (e: KeyboardEvent) => {
     if (e.code === "Enter" || e.code === "enter" || e.code === "NumpadEnter") {
